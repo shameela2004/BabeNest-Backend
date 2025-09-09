@@ -34,7 +34,8 @@ namespace BabeNest_Backend.Services
             var existing = await _repo.GetCartItemAsync(userId, dto.ProductId);
             if (existing != null)
             {
-                existing.Quantity += dto.Quantity;
+                // Increment quantity by 1 automatically
+                existing.Quantity += 1;
                 await _repo.UpdateAsync(existing);
                 return _mapper.Map<CartDto>(existing);
             }
@@ -43,12 +44,28 @@ namespace BabeNest_Backend.Services
             {
                 UserId = userId,
                 ProductId = dto.ProductId,
-                Quantity = dto.Quantity
+                Quantity = 1 // always 1 when adding
             };
 
             await _repo.AddAsync(cart);
-            return _mapper.Map<CartDto>(cart);
+            var added = await _repo.GetCartItemAsync(userId, dto.ProductId);
+
+            return _mapper.Map<CartDto>(added);
         }
+
+
+
+        public async Task<CartDto?> UpdateCartItemAsync(int userId, int productId, int quantity)
+        {
+            var existing = await _repo.GetCartItemAsync(userId, productId);
+            if (existing == null) return null;
+
+            existing.Quantity = quantity; 
+            await _repo.UpdateAsync(existing);
+
+            return _mapper.Map<CartDto>(existing);
+        }
+
 
         public async Task<bool> RemoveFromCartAsync(int userId, int productId)
         {
@@ -58,5 +75,15 @@ namespace BabeNest_Backend.Services
             await _repo.DeleteAsync(item);
             return true;
         }
+        public async Task<bool> ClearCartAsync(int userId)
+{
+    var items = await _repo.GetUserCartAsync(userId);
+    if (!items.Any()) return false;
+
+    await _repo.ClearCartAsync(userId);
+    return true;
+}
+
+
     }
 }

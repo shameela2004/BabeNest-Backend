@@ -9,5 +9,6 @@ namespace BabeNest_Backend.Repositories.Interfaces
         Task AddAsync(Cart cart);
         Task UpdateAsync(Cart cart);
         Task DeleteAsync(Cart cart);
+        Task ClearCartAsync(int userId);
     }
 }

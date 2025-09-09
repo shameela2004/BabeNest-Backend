@@ -52,6 +52,11 @@ namespace BabeNest_Backend.Mappings
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Username));
             CreateMap<CreateReviewDto, Review>();
 
+            // Address
+            CreateMap<Address, AddressDto>().ReverseMap();
+            CreateMap<CreateAddressDto, Address>();
+            CreateMap<UpdateAddressDto, Address>();
+
         }
     }
 }

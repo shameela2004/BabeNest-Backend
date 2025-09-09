@@ -23,6 +23,20 @@ namespace BabeNest_Backend.Repositories
         .FirstOrDefaultAsync(p => p.Id == id);
                  
         }
+
+
+
+        public async Task<decimal> GetPriceAsync(int productId)
+        {
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null)
+                throw new Exception($"Product with Id {productId} not found.");
+
+            return product.Price;
+        }
+
+
+
         public async Task AddAsync(Product product)
         {
             _context.Products.Add(product);

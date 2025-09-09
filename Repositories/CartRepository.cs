@@ -44,5 +44,13 @@ namespace BabeNest_Backend.Repositories
             _context.Carts.Remove(cart);
             await _context.SaveChangesAsync();
         }
+
+        public async Task ClearCartAsync(int userId)
+        {
+            var items = await _context.Carts.Where(c => c.UserId == userId).ToListAsync();
+            _context.Carts.RemoveRange(items);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

@@ -15,5 +15,7 @@
         public ICollection<Wishlist> Wishlists { get; set; }
         public ICollection<Order> Orders { get; set; }
         public ICollection<Review> Reviews { get; set; }
+        public ICollection<Address> Addresses { get; set; } = new List<Address>();
+
     }
 }

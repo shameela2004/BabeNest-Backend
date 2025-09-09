@@ -8,5 +8,6 @@ namespace BabeNest_Backend.Repositories.Interfaces
         Task<IEnumerable<Wishlist>> GetUserWishlistAsync(int userId);
         Task AddAsync(Wishlist wishlist);
         Task RemoveAsync(Wishlist wishlist);
+        Task<Wishlist?> GetWishlistByIdAsync(int wishlistId);
     }
 }

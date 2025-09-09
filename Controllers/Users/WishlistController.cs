@@ -41,5 +41,18 @@ namespace BabeNest_Backend.Controllers.Users
             var success = await _wishlistService.RemoveFromWishlistAsync(userId, productId);
             return success ? NoContent() : NotFound();
         }
+
+        [HttpPost("add-to-cart/{wishlistId}")]
+        public async Task<IActionResult> MoveToCart(int wishlistId)
+        {
+            var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
+
+            var result = await _wishlistService.AddToCartFromWishlistAsync(userId, wishlistId);
+
+            if (result == null)
+                return NotFound(new { message = "Wishlist item not found" });
+
+            return Ok(result);
+        }
     }
 }

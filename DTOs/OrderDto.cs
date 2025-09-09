@@ -21,13 +21,13 @@
 
     public class CreateOrderDto
     {
-        public int? UserId { get; set; }
+        //public int? UserId { get; set; }
         public string CustomerName { get; set; }
         public string CustomerEmail { get; set; }
         public string CustomerPhone { get; set; }
         public string CustomerAddress { get; set; }
 
-        public List<CreateOrderItemDto> Items { get; set; }
+        //public List<CreateOrderItemDto> Items { get; set; }
     }
 
     public class UpdateOrderDto

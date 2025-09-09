@@ -40,5 +40,11 @@ namespace BabeNest_Backend.Repositories
             _context.Wishlists.Remove(wishlist);
             await _context.SaveChangesAsync();
         }
+        public async Task<Wishlist?> GetWishlistByIdAsync(int wishlistId)
+        {
+            return await _context.Wishlists
+                .Include(w => w.Product)
+                .FirstOrDefaultAsync(w => w.Id == wishlistId);
+        }
     }
 }

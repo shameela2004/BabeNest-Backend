@@ -10,11 +10,13 @@ namespace BabeNest_Backend.Services
     public class WishlistService :IWishlistService
     {
         private readonly IwishlistRepository _wishlistRepository;
+        private readonly ICartRepository _cartRepository;
         private readonly IMapper _mapper;
 
-        public WishlistService(IwishlistRepository wishlistRepository, IMapper mapper)
+        public WishlistService(IwishlistRepository wishlistRepository, ICartRepository cartRepository,IMapper mapper)
         {
             _wishlistRepository = wishlistRepository;
+            _cartRepository = cartRepository;
             _mapper = mapper;
         }
 
@@ -30,7 +32,8 @@ namespace BabeNest_Backend.Services
             };
 
             await _wishlistRepository.AddAsync(wishlist);
-            return _mapper.Map<WishlistDto>(wishlist);
+            var added = await _wishlistRepository.GetWishlistItemAsync(userId, productId);
+            return _mapper.Map<WishlistDto>(added);
         }
 
         public async Task<IEnumerable<WishlistDto>> GetUserWishlistAsync(int userId)
@@ -47,5 +50,37 @@ namespace BabeNest_Backend.Services
             await _wishlistRepository.RemoveAsync(existing);
             return true;
         }
+        public async Task<CartDto?> AddToCartFromWishlistAsync(int userId, int wishlistId)
+        {
+            var wishlistItem = await _wishlistRepository.GetWishlistByIdAsync(wishlistId);
+            if (wishlistItem == null || wishlistItem.UserId != userId)
+                return null;
+
+            var productId = wishlistItem.ProductId;
+
+            var cartItem = await _cartRepository.GetCartItemAsync(userId, productId);
+            if (cartItem != null)
+            {
+                cartItem.Quantity += 1;
+                await _cartRepository.UpdateAsync(cartItem);
+            }
+            else
+            {
+                var newCart = new Cart
+                {
+                    UserId = userId,
+                    ProductId = productId,
+                    Quantity = 1
+                };
+                await _cartRepository.AddAsync(newCart);
+                cartItem = newCart;
+            }
+
+         
+
+            var refreshed = await _cartRepository.GetCartItemAsync(userId, productId);
+            return _mapper.Map<CartDto>(refreshed);
+        }
+
     }
 }

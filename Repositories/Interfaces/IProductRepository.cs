@@ -9,5 +9,7 @@ namespace BabeNest_Backend.Repositories.Interfaces
         Task AddAsync(Product product);
         Task UpdateAsync(Product product);
         Task <bool>DeleteAsync(int id);
+        Task<decimal> GetPriceAsync(int productId);
+
     }
 }

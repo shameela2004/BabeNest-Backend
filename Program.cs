@@ -26,6 +26,8 @@ namespace BabeNest_Backend
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ICartRepository, CartRepository>();
             builder.Services.AddScoped<IwishlistRepository, WishlistRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 
 
 
@@ -36,6 +38,8 @@ namespace BabeNest_Backend
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ICartService,CartService>();
             builder.Services.AddScoped<IWishlistService,WishlistService>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IAddressService, AddressService>();
 
 
             builder.Services.AddAutoMapper(typeof(Mappingprofile));

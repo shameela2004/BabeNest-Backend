@@ -31,6 +31,14 @@ namespace BabeNest_Backend.Controllers.Users
             return Ok(result);
         }
 
+        [HttpPut("{productId}")]
+        public async Task<IActionResult> UpdateCartItem(int productId, UpdateCartDto dto)
+        {
+            var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
+            var updated = await _service.UpdateCartItemAsync(userId, productId, dto.Quantity);
+            return updated != null ? Ok(updated) : NotFound();
+        }
+
         [HttpDelete("{productId}")]
         public async Task<IActionResult> RemoveFromCart(int productId)
         {
@@ -38,5 +46,14 @@ namespace BabeNest_Backend.Controllers.Users
             var removed = await _service.RemoveFromCartAsync(userId, productId);
             return removed ? Ok(new { message = "Removed" }) : NotFound();
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> ClearCart()
+        {
+            var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
+            var cleared = await _service.ClearCartAsync(userId);
+            return cleared ? Ok(new { message = "Cart cleared" }) : NotFound();
+        }
+
     }
 }
