@@ -32,4 +32,13 @@
         public string Image { get; set; }
         public int CategoryId { get; set; }
     }
+    // filter DTO
+    public class ProductFilter
+    {
+        public string? SearchTerm { get; set; }
+        public int? CategoryId { get; set; }
+        public decimal? MinPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
+        public double? Rating { get; set; }
+    }
 }

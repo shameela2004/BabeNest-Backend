@@ -1,4 +1,5 @@
 ﻿using BabeNest_Backend.Data;
+using BabeNest_Backend.DTOs;
 using BabeNest_Backend.Entities;
 using BabeNest_Backend.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -12,19 +13,48 @@ namespace BabeNest_Backend.Repositories
         {
             _context = context;
         }
-        public async Task<IEnumerable<Product>> GetAllAsync()
+        public async Task<IEnumerable<Product>> GetAllAsync(ProductFilter filters)
         {
-            return await _context.Products.Include(p=>p.Category).ToListAsync();
+            var query = _context.Products
+      .Include(p => p.Category)   //include category for filtering
+      .Include(p => p.Reviews)    // include reviews to calculate rating
+      .AsQueryable();
+
+            if (!string.IsNullOrEmpty(filters.SearchTerm))
+            {
+                query = query.Where(p =>
+                    p.Name.Contains(filters.SearchTerm) ||
+                    p.Description.Contains(filters.SearchTerm));
+            }
+
+            if (filters.CategoryId.HasValue)   // 🔹 now use CategoryId
+            {
+                query = query.Where(p => p.CategoryId == filters.CategoryId.Value);
+            }
+
+            if (filters.MinPrice.HasValue)
+                query = query.Where(p => p.Price >= filters.MinPrice.Value);
+
+            if (filters.MaxPrice.HasValue)
+                query = query.Where(p => p.Price <= filters.MaxPrice.Value);
+
+            if (filters.Rating.HasValue)
+                query = query.Where(p => p.Rating >= filters.Rating.Value);
+
+
+            return await query.ToListAsync();
         }
+
         public async Task<Product?> GetByIdAsync(int id)
         {
-            return await _context.Products
-        .Include(p => p.Category)   
-        .FirstOrDefaultAsync(p => p.Id == id);
-                 
+            return await _context.Products.FindAsync(id);
         }
 
-
+        public async Task AddAsync(Product product)
+        {
+            await _context.Products.AddAsync(product);
+            await _context.SaveChangesAsync();
+        }
 
         public async Task<decimal> GetPriceAsync(int productId)
         {
@@ -35,13 +65,6 @@ namespace BabeNest_Backend.Repositories
             return product.Price;
         }
 
-
-
-        public async Task AddAsync(Product product)
-        {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
-        }
         public async Task UpdateAsync(Product product)
         {
             _context.Products.Update(product);

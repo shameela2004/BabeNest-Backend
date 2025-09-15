@@ -4,6 +4,7 @@ using BabeNest_Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BabeNest_Backend.Migrations
 {
     [DbContext(typeof(BabeNestDbContext))]
-    partial class BabeNestDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250913052832_Refresh-Table")]
+    partial class RefreshTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -228,9 +231,6 @@ namespace BabeNest_Backend.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<double>("Rating")
-                        .HasColumnType("float");
-
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
@@ -249,7 +249,6 @@ namespace BabeNest_Backend.Migrations
                             Image = "images/products/baby-shampoo.jpg",
                             Name = "Baby Shampoo",
                             Price = 199.99m,
-                            Rating = 0.0,
                             Stock = 50
                         },
                         new
@@ -260,7 +259,6 @@ namespace BabeNest_Backend.Migrations
                             Image = "images/products/teddy-bear.jpg",
                             Name = "Soft Teddy Bear",
                             Price = 499.00m,
-                            Rating = 0.0,
                             Stock = 20
                         },
                         new
@@ -271,7 +269,6 @@ namespace BabeNest_Backend.Migrations
                             Image = "images/products/baby-onesie.jpg",
                             Name = "Baby Onesie",
                             Price = 299.50m,
-                            Rating = 0.0,
                             Stock = 100
                         },
                         new
@@ -282,7 +279,6 @@ namespace BabeNest_Backend.Migrations
                             Image = "images/products/feeding-bottle.jpg",
                             Name = "Feeding Bottle",
                             Price = 150.00m,
-                            Rating = 0.0,
                             Stock = 75
                         });
                 });

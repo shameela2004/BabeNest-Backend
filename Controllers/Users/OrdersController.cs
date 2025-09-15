@@ -1,4 +1,5 @@
 ﻿using BabeNest_Backend.DTOs;
+using BabeNest_Backend.Helpers;
 using BabeNest_Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -19,27 +20,27 @@ namespace BabeNest_Backend.Controllers.Users
             _orderService = orderService;
         }
 
-        // GET: api/order
         [HttpGet]
         public async Task<IActionResult> GetMyOrders()
         {
             var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var orders = await _orderService.GetOrdersByUserAsync(userId);
-            return Ok(orders);
+            if (orders == null)
+                return NotFound(ApiResponse<string>.FailResponse("Order not found", 404));
+            return Ok(ApiResponse<Object>.SuccessResponse(orders, "Orders retrieved successfully."));
         }
 
-        // GET: api/order/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrder(int id)
         {
             var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var order = await _orderService.GetOrderByIdAsync(id, userId);
 
-            if (order == null) return NotFound();
-            return Ok(order);
+            if (order == null)
+                return NotFound(ApiResponse<object>.FailResponse("Order not found", statusCode: 404));
+            return Ok (ApiResponse<Object>.SuccessResponse(order, "Order retrieved successfully."));
         }
 
-        // POST: api/order
         [HttpPost]
         [HttpPost]
         public async Task<IActionResult> CreateOrder(CreateOrderDto dto)
@@ -59,20 +60,18 @@ namespace BabeNest_Backend.Controllers.Users
             }
             catch (Exception ex)
             {
-                // log exception
                 return StatusCode(500, new { message = "Server error", detail = ex.Message });
             }
         }
 
-        // PUT: api/order/cancel/5
         [HttpPut("cancel/{id}")]
         public async Task<IActionResult> CancelOrder(int id)
         {
             var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
 
-            // Only allow cancelling
             var order = await _orderService.GetOrderByIdAsync(id, userId);
-            if (order == null) return NotFound();
+            if (order == null) 
+                return NotFound( ApiResponse<object>.FailResponse("Order not found", statusCode: 404));
 
             if (order.Status == "Cancelled")
                 return BadRequest(new { message = "Order is already cancelled." });
@@ -84,7 +83,7 @@ namespace BabeNest_Backend.Controllers.Users
             if (updatedOrder == null)
                 return BadRequest(new { message = "Unable to cancel order." });
 
-            return Ok(new { message = "Order cancelled successfully." });
+            return Ok(ApiResponse<Object>.SuccessResponse("Order Cancelled Successfully."));
 
         }
     }

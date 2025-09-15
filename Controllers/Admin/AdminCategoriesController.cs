@@ -2,6 +2,7 @@
 using BabeNest_Backend.DTOs;
 using BabeNest_Backend.Entities;
 using BabeNest_Backend.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,8 @@ namespace BabeNest_Backend.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
+
     public class AdminCategoriesController : ControllerBase
     {
         private readonly ICategoryService _categoryService;

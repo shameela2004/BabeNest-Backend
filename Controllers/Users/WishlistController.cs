@@ -34,11 +34,11 @@ namespace BabeNest_Backend.Controllers.Users
             return Ok(item);
         }
 
-        [HttpDelete("{productId}")]
-        public async Task<IActionResult> RemoveFromWishlist(int productId)
+        [HttpDelete("{wishlistId}")]
+        public async Task<IActionResult> RemoveFromWishlist(int wishlistId)
         {
             var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
-            var success = await _wishlistService.RemoveFromWishlistAsync(userId, productId);
+            var success = await _wishlistService.RemoveFromWishlistAsync(userId, wishlistId);
             return success ? NoContent() : NotFound();
         }
 

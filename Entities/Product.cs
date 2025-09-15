@@ -11,6 +11,7 @@
 
         public int CategoryId { get; set; }
         public Category Category { get; set; }
+        public double Rating { get; set; }  // Average rating from reviews
 
         // Navigation
         //public ICollection<Cart> Carts { get; set; }

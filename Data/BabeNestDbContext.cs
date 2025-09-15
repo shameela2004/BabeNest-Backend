@@ -17,6 +17,7 @@ namespace BabeNest_Backend.Data
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Address> Addresses { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -39,7 +40,8 @@ namespace BabeNest_Backend.Data
         Price = 199.99M,
         Stock = 50,
         Image = "images/products/baby-shampoo.jpg",
-        CategoryId = 1
+        CategoryId = 1,
+        Rating=0.0
     },
     new Product
     {
@@ -49,7 +51,8 @@ namespace BabeNest_Backend.Data
         Price = 499.00M,
         Stock = 20,
         Image = "images/products/teddy-bear.jpg",
-        CategoryId = 2
+        CategoryId = 2,
+        Rating = 0.0
     },
     new Product
     {
@@ -59,7 +62,8 @@ namespace BabeNest_Backend.Data
         Price = 299.50M,
         Stock = 100,
         Image = "images/products/baby-onesie.jpg",
-        CategoryId = 3
+        CategoryId = 3,
+        Rating = 0.0
     },
     new Product
     {
@@ -69,7 +73,8 @@ namespace BabeNest_Backend.Data
         Price = 150.00M,
         Stock = 75,
         Image = "images/products/feeding-bottle.jpg",
-        CategoryId = 4
+        CategoryId = 4,
+        Rating = 0.0
     }
 );
             modelBuilder.Entity<User>().HasData(new User
@@ -77,14 +82,16 @@ namespace BabeNest_Backend.Data
                 Id = 1000,
                 Username = "AdminUser",
                 Email = "admin@babenest.com",
-                PasswordHash = "$2a$11$uJX3yK5E6M/T7bG.Z1Lr6e3N6W85i/7gpoZkiy3vMb/n1/0U4hYF2", // precomputed static hash
+                PasswordHash = "$2a$11$uJX3yK5E6M/T7bG.Z1Lr6e3N6W85i/7gpoZkiy3vMb/n1/0U4hYF2", 
                 Role = "Admin",
                 Blocked = false,
                 CreatedAt = new DateTime(2025, 9, 8, 12, 0, 0)
             });
 
-
-
+            // for unique email 
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
 
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.User)
@@ -121,6 +128,13 @@ namespace BabeNest_Backend.Data
                 .WithMany(u => u.Addresses)
                 .HasForeignKey(a => a.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // User -RefreshTokens (One-to-Many)
+            modelBuilder.Entity<RefreshToken>()
+                .HasOne(rt => rt.User)
+                .WithMany(u => u.RefreshTokens)
+                .HasForeignKey(rt => rt.UserId);
+
         }
     }
 }

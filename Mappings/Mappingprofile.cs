@@ -19,6 +19,7 @@ namespace BabeNest_Backend.Mappings
             CreateMap<CreateCategoryDto, Category>();
             CreateMap<UpdateCategoryDto, Category>();
 
+
             // User
             CreateMap<User, UserDto>();
             CreateMap<RegisterUserDto, User>()
@@ -48,9 +49,19 @@ namespace BabeNest_Backend.Mappings
             CreateMap<CreateWishlistDto, Wishlist>();
 
             // Review
+            //CreateMap<Review, ReviewDto>()
+            //    .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Username));
+            //CreateMap<CreateReviewDto, Review>();
+            // Entity -> DTO
             CreateMap<Review, ReviewDto>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Username));
-            CreateMap<CreateReviewDto, Review>();
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName));
+            // src.UserName is already in entity, no need to map from User.Username
+
+            // DTO -> Entity (Create)
+            CreateMap<CreateReviewDto, Review>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())   // will be set in service from JWT
+                .ForMember(dest => dest.UserName, opt => opt.Ignore()) // will be set in service from JWT
+                .ForMember(dest => dest.Date, opt => opt.MapFrom(_ => DateTime.Now));
 
             // Address
             CreateMap<Address, AddressDto>().ReverseMap();

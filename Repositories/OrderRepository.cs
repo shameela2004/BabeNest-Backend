@@ -50,5 +50,58 @@ namespace BabeNest_Backend.Repositories
             await _context.SaveChangesAsync();
             return order;
         }
+        public async Task<bool> HasUserReceivedProductAsync(int userId, int productId)
+        {
+            return await _context.Orders
+                .Include(o => o.Items)
+                .AnyAsync(o => o.UserId == userId
+                            && o.Items.Any(i => i.ProductId == productId)
+                            && o.Status == "Delivered");
+        }
+
+        // -------- Admin methods --------
+        public async Task<IEnumerable<Order>> GetAllOrdersAsync()
+        {
+            return await _context.Orders
+                .Include(o => o.Items)
+                .ThenInclude(i => i.Product)
+                .Include(o => o.User) // so we can map UserName
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
+        }
+
+        public async Task<Order?> GetOrderByIdForAdminAsync(int id)
+        {
+            return await _context.Orders
+                .Include(o => o.Items)
+                .ThenInclude(i => i.Product)
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(o => o.Id == id);
+        }
+        public async Task<IEnumerable<Order>> FilterOrdersAsync(string? status, DateTime? startDate, DateTime? endDate, string? searchTerm)
+        {
+            var query = _context.Orders
+                .Include(o => o.Items)
+                .ThenInclude(i => i.Product)
+                .Include(o => o.User)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(o => o.Status == status);
+
+            if (startDate.HasValue)
+                query = query.Where(o => o.OrderDate >= startDate.Value);
+
+            if (endDate.HasValue)
+                query = query.Where(o => o.OrderDate <= endDate.Value);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+                query = query.Where(o => o.CustomerEmail.Contains(searchTerm) || o.CustomerName.Contains(searchTerm));
+
+
+            return await query.OrderByDescending(o => o.OrderDate).ToListAsync();
+        }
+
+
     }
 }

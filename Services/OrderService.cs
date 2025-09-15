@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BabeNest_Backend.DTOs;
 using BabeNest_Backend.Entities;
+using BabeNest_Backend.Repositories;
 using BabeNest_Backend.Repositories.Interfaces;
 using BabeNest_Backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -28,15 +29,12 @@ namespace BabeNest_Backend.Services
 
         public async Task<OrderDto> CreateOrderAsync(int userId, CreateOrderDto dto)
         {
-            // 1) Load cart items for user (must include Product navigation ideally)
             var cartItems = (await _cartRepo.GetUserCartAsync(userId)).ToList();
             if (!cartItems.Any())
                 throw new InvalidOperationException("Cart is empty.");
 
-            // 2) Map customer details from DTO -> Order (AutoMapper copies the basic fields)
             var order = _mapper.Map<Order>(dto);
 
-            // 3) Fill system/computed fields
             order.UserId = userId;
             order.OrderDate = DateTime.UtcNow;
             order.Status = "Pending";
@@ -45,14 +43,12 @@ namespace BabeNest_Backend.Services
 
             decimal total = 0m;
 
-            // 4) Build OrderItems from CartItems (snapshot product price)
             foreach (var ci in cartItems)
             {
-                // try product from cart navigation first
                 var product = ci.Product;
                 if (product == null)
                 {
-                    // fallback: fetch from product repo if needed
+                    // fetch from product repo if needed
                     product = await _productRepo.GetByIdAsync(ci.ProductId)
                               ?? throw new InvalidOperationException($"Product {ci.ProductId} not found.");
                 }
@@ -71,16 +67,13 @@ namespace BabeNest_Backend.Services
 
             order.TotalAmount = total;
 
-            // 5) Save order
             var createdOrder = await _orderRepo.CreateOrderAsync(order);
 
-            // 6) Clear the cart (delete each cart item)
             foreach (var ci in cartItems)
             {
                 await _cartRepo.DeleteAsync(ci);
             }
 
-            // 7) Map saved entity -> OrderDto for response
             var orderDto = _mapper.Map<OrderDto>(createdOrder);
             return orderDto;
         }
@@ -102,5 +95,24 @@ namespace BabeNest_Backend.Services
             var updated = await _orderRepo.UpdateOrderStatusAsync(orderId, status);
             return updated == null ? null : _mapper.Map<OrderDto>(updated);
         }
+
+        public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync()
+        {
+            var orders = await _orderRepo.GetAllOrdersAsync();
+            return _mapper.Map<IEnumerable<OrderDto>>(orders);
+        }
+
+        public async Task<OrderDto?> GetOrderByIdAsync(int id)
+        {
+            var order = await _orderRepo.GetOrderByIdForAdminAsync(id);
+            return _mapper.Map<OrderDto?>(order);
+        }
+        public async Task<IEnumerable<OrderDto>> FilterOrdersAsync(string? status, DateTime? startDate, DateTime? endDate, string? serachTerm)
+        {
+            var orders = await _orderRepo.FilterOrdersAsync(status, startDate, endDate, serachTerm);
+            return _mapper.Map<IEnumerable<OrderDto>>(orders);
+        }
+
+
     }
 }

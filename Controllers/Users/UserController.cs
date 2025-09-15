@@ -9,7 +9,7 @@ namespace BabeNest_Backend.Controllers.Users
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "User,Admin")] // both can access, but actions are scoped
+    [Authorize(Roles = "User,Admin")] 
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -19,7 +19,6 @@ namespace BabeNest_Backend.Controllers.Users
             _userService = userService;
         }
 
-        // Get logged-in user profile
         [HttpGet("me")]
         public async Task<IActionResult> GetProfile()
         {
@@ -39,7 +38,6 @@ namespace BabeNest_Backend.Controllers.Users
             }
         }
 
-        //Update your own profile
         [HttpPut("me")]
         public async Task<IActionResult> UpdateProfile(UpdateUserDto dto)
         {

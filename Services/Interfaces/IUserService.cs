@@ -8,6 +8,7 @@ namespace BabeNest_Backend.Services.Interfaces
         Task<UserDto?> GetByIdAsync(int id);
         Task<IEnumerable<UserDto>> GetAllAsync();
         Task<UserDto?> UpdateAsync(int id, UpdateUserDto dto);
+        Task<AdminUserProfileDto?> GetUserProfileAsync(int userId);
         Task<bool> BlockUserAsync(int id);
         Task<bool> UnblockUserAsync(int id);
     }

@@ -6,6 +6,7 @@ namespace BabeNest_Backend.Repositories.Interfaces
     {
         Task<IEnumerable<Cart>> GetUserCartAsync(int userId);
         Task<Cart?> GetCartItemAsync(int userId, int productId);
+        Task<Cart?> GetCartItemByIdAsync(int cartId);
         Task AddAsync(Cart cart);
         Task UpdateAsync(Cart cart);
         Task DeleteAsync(Cart cart);

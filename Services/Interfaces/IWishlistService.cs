@@ -6,7 +6,7 @@ namespace BabeNest_Backend.Services.Interfaces
     {
         Task<IEnumerable<WishlistDto>> GetUserWishlistAsync(int userId);
         Task<WishlistDto> AddToWishlistAsync(int userId, int productId);
-        Task<bool> RemoveFromWishlistAsync(int userId, int productId);
+        Task<bool> RemoveFromWishlistAsync(int userId, int wishlistId);
         Task<CartDto?> AddToCartFromWishlistAsync(int userId, int wishlistId);
     }
 }

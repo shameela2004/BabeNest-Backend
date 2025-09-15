@@ -53,24 +53,21 @@ namespace BabeNest_Backend.Services
             return _mapper.Map<CartDto>(added);
         }
 
-
-
-        public async Task<CartDto?> UpdateCartItemAsync(int userId, int productId, int quantity)
+        public async Task<CartDto?> UpdateCartItemAsync(int userId, int cartId, int quantity)
         {
-            var existing = await _repo.GetCartItemAsync(userId, productId);
-            if (existing == null) return null;
+            var existing = await _repo.GetCartItemByIdAsync(cartId);
+            if (existing == null || existing.UserId != userId) return null; // check ownership
 
-            existing.Quantity = quantity; 
+            existing.Quantity = quantity;
             await _repo.UpdateAsync(existing);
 
             return _mapper.Map<CartDto>(existing);
         }
 
-
-        public async Task<bool> RemoveFromCartAsync(int userId, int productId)
+        public async Task<bool> RemoveFromCartAsync(int userId, int cartId)
         {
-            var item = await _repo.GetCartItemAsync(userId, productId);
-            if (item == null) return false;
+            var item = await _repo.GetCartItemByIdAsync(cartId);
+            if (item == null || item.UserId != userId) return false;
 
             await _repo.DeleteAsync(item);
             return true;

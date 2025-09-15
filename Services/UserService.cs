@@ -9,12 +9,18 @@ namespace BabeNest_Backend.Services
     public class UserService :IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly ICartRepository _cartRepo;
+        private readonly IwishlistRepository _wishlistRepo;
+        private readonly IOrderRepository _orderRepo;
         private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IMapper mapper)
+        public UserService(IUserRepository userRepository, IMapper mapper, ICartRepository cartRepo, IwishlistRepository wishlistRepo, IOrderRepository orderRepo)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _cartRepo = cartRepo;
+            _wishlistRepo = wishlistRepo;
+            _orderRepo = orderRepo;
         }
 
         public async Task<UserDto> RegisterAsync(RegisterUserDto dto, string passwordHash)
@@ -52,6 +58,28 @@ namespace BabeNest_Backend.Services
             await _userRepository.UpdateAsync(user);
 
             return _mapper.Map<UserDto>(user);
+        }
+
+
+
+        // Get single user's profile with cart, wishlist, orders
+        public async Task<AdminUserProfileDto?> GetUserProfileAsync(int userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                return null; // avoid mapping null user
+
+            var carts = await _cartRepo.GetUserCartAsync(userId) ?? new List<Cart>();
+            var wishlists = await _wishlistRepo.GetUserWishlistAsync(userId) ?? new List<Wishlist>();
+            var orders = await _orderRepo.GetOrdersByUserAsync(userId) ?? new List<Order>();
+
+            return new AdminUserProfileDto
+            {
+                User = _mapper.Map<UserDto>(user),
+                Carts = _mapper.Map<IEnumerable<CartDto>>(carts),      
+                Wishlists = _mapper.Map<IEnumerable<WishlistDto>>(wishlists),
+                Orders = _mapper.Map<IEnumerable<OrderDto>>(orders)
+            };
         }
 
         public async Task<bool> BlockUserAsync(int id)

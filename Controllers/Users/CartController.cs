@@ -31,19 +31,19 @@ namespace BabeNest_Backend.Controllers.Users
             return Ok(result);
         }
 
-        [HttpPut("{productId}")]
-        public async Task<IActionResult> UpdateCartItem(int productId, UpdateCartDto dto)
+        [HttpPut("{cartId}")]
+        public async Task<IActionResult> UpdateCartItem(int cartId, UpdateCartDto dto)
         {
             var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
-            var updated = await _service.UpdateCartItemAsync(userId, productId, dto.Quantity);
+            var updated = await _service.UpdateCartItemAsync(userId, cartId, dto.Quantity);
             return updated != null ? Ok(updated) : NotFound();
         }
 
-        [HttpDelete("{productId}")]
-        public async Task<IActionResult> RemoveFromCart(int productId)
+        [HttpDelete("{cartId}")]
+        public async Task<IActionResult> RemoveFromCart(int cartId)
         {
             var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
-            var removed = await _service.RemoveFromCartAsync(userId, productId);
+            var removed = await _service.RemoveFromCartAsync(userId, cartId);
             return removed ? Ok(new { message = "Removed" }) : NotFound();
         }
 

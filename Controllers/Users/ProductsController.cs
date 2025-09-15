@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BabeNest_Backend.DTOs;
 using BabeNest_Backend.Entities;
+using BabeNest_Backend.Helpers;
 using BabeNest_Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BabeNest_Backend.Controllers.Users
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
@@ -22,20 +23,26 @@ namespace BabeNest_Backend.Controllers.Users
             _mapper = mapper;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] ProductFilter filters)
         {
-            var products = await _productService.GetAllAsync();
+            var products = await _productService.GetAllAsync(filters);
+            if (products == null || !products.Any())
+            {
+                return NotFound(ApiResponse<object>.FailResponse("No products", statusCode: 404));
+            }
             var productdtos = _mapper.Map<IEnumerable<ProductDto>>(products);
-            return Ok(productdtos);
+            return Ok(ApiResponse<IEnumerable<ProductDto>>.SuccessResponse(productdtos, "Products retrieved successfully"));
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var product = await _productService.GetByIdAsync(id);
-            if (product == null) return NotFound();
+            if (product == null)
+                return NotFound(ApiResponse<object>.FailResponse("Product Not Found ", statusCode: 404));
+
             var productDto = _mapper.Map<ProductDto>(product);
 
-            return Ok(productDto);
+            return Ok( ApiResponse<ProductDto>.SuccessResponse(productDto, "Product retrieved successfully"));
         }
     }
 }

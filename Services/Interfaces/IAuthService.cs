@@ -4,7 +4,10 @@ namespace BabeNest_Backend.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<UserDto>RegisterAsync(RegisterUserDto dto, string role = "User");
-        Task<string?>LoginAsync(string email, string password);
+        Task<UserDto> RegisterAsync(RegisterUserDto dto, string role = "User");
+        Task<AuthResponseDto?> LoginAsync(string email, string password);
+        Task<AuthResponseDto?> RefreshTokenAsync(string refreshToken);
+        Task<bool> RevokeTokenAsync(string refreshToken);
+
     }
 }

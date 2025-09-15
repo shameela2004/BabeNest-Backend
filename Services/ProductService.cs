@@ -1,4 +1,5 @@
-﻿using BabeNest_Backend.Entities;
+﻿using BabeNest_Backend.DTOs;
+using BabeNest_Backend.Entities;
 using BabeNest_Backend.Repositories.Interfaces;
 using BabeNest_Backend.Services.Interfaces;
 
@@ -14,9 +15,9 @@ namespace BabeNest_Backend.Services
             _productRepository = productRepository;
         }
 
-        public async Task<IEnumerable<Product>> GetAllAsync()
+        public async Task<IEnumerable<Product>> GetAllAsync(ProductFilter filters)
         {
-            return await _productRepository.GetAllAsync();
+            return await _productRepository.GetAllAsync(filters);
         }
 
         public async Task<Product?> GetByIdAsync(int id)

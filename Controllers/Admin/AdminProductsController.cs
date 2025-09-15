@@ -22,13 +22,13 @@ namespace BabeNest_Backend.Controllers.Admin
             _mapper = mapper;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] ProductFilter filters)
         {
-            var products = await _productService.GetAllAsync();
+            var products = await _productService.GetAllAsync(filters);
             var productdtos = _mapper.Map<IEnumerable<ProductDto>>(products);
             return Ok(productdtos);
         }
-        // optional: admin also can get details
+        // admin also can get details
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {

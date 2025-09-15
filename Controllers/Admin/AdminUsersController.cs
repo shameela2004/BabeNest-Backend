@@ -43,6 +43,17 @@ namespace BabeNest_Backend.Controllers.Admin
         //    return Ok(updatedUser);
         //}
 
+
+        [HttpGet("{id}/profile")]
+        public async Task<IActionResult> GetUserProfile(int id)
+        {
+            var profile = await _userService.GetUserProfileAsync(id);
+            if (profile == null)
+                return NotFound(new { Message = "User not found" });
+
+            return Ok(profile);
+        }
+
         [HttpPut("{id}/block")]
         public async Task<IActionResult> BlockUser(int id)
         {

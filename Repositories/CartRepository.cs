@@ -27,6 +27,14 @@ namespace BabeNest_Backend.Repositories
 
         }
 
+
+        public async Task<Cart?> GetCartItemByIdAsync(int cartId)
+        {
+            return await _context.Carts
+                .Include(c => c.Product)
+                .FirstOrDefaultAsync(c => c.Id == cartId);
+        }
+
         public async Task AddAsync(Cart cart)
         {
             _context.Carts.Add(cart);

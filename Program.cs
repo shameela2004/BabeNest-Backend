@@ -1,10 +1,12 @@
 
 using BabeNest_Backend.Data;
 using BabeNest_Backend.Mappings;
+using BabeNest_Backend.Middlewares;
 using BabeNest_Backend.Repositories;
 using BabeNest_Backend.Repositories.Interfaces;
 using BabeNest_Backend.Services;
 using BabeNest_Backend.Services.Interfaces;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -28,6 +30,7 @@ namespace BabeNest_Backend
             builder.Services.AddScoped<IwishlistRepository, WishlistRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+            builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 
 
@@ -40,6 +43,13 @@ namespace BabeNest_Backend
             builder.Services.AddScoped<IWishlistService,WishlistService>();
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IAddressService, AddressService>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
+
+
+
+        
+
+
 
 
             builder.Services.AddAutoMapper(typeof(Mappingprofile));
@@ -54,19 +64,19 @@ namespace BabeNest_Backend
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-        ValidAudience = builder.Configuration["JwtSettings:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]))
-    };
-});
+           .AddJwtBearer(options =>
+            {
+           options.TokenValidationParameters = new TokenValidationParameters
+            {
+               ValidateIssuer = true,
+               ValidateAudience = true,
+               ValidateLifetime = true,
+               ValidateIssuerSigningKey = true,
+               ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+               ValidAudience = builder.Configuration["JwtSettings:Audience"],
+               IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]))
+            };
+            });
 
             builder.Services.AddAuthorization();
 
@@ -124,6 +134,8 @@ namespace BabeNest_Backend
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            app.UseMiddleware<ExceptionMiddleware>();
+            app.UseMiddleware<BabeNest_Backend.Middlewares.TokenRefreshMiddleware>();
 
             app.UseHttpsRedirection();
 

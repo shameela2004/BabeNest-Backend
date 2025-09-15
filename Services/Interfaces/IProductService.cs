@@ -1,10 +1,11 @@
-﻿using BabeNest_Backend.Entities;
+﻿using BabeNest_Backend.DTOs;
+using BabeNest_Backend.Entities;
 
 namespace BabeNest_Backend.Services.Interfaces
 {
     public interface IProductService
     {
-        Task<IEnumerable<Product>> GetAllAsync();
+        Task<IEnumerable<Product>> GetAllAsync(ProductFilter filters);
         Task<Product?> GetByIdAsync(int id);
         Task<Product> CreateAsync(Product product);
         Task<Product?> UpdateAsync(int id, Product updatedProduct);
