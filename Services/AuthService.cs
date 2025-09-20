@@ -66,7 +66,10 @@ namespace BabeNest_Backend.Services
             return new AuthResponseDto
             {
                 AccessToken = accessToken,
-                RefreshToken = refreshToken.Token
+                RefreshToken = refreshToken.Token,
+                Username=user.Username,
+                Email=email,
+
             };
         }
 
@@ -86,7 +89,9 @@ namespace BabeNest_Backend.Services
             return new AuthResponseDto
             {
                 AccessToken = accessToken,
-                RefreshToken = existingToken.Token
+                RefreshToken = existingToken.Token,
+                Username = user.Username,
+                Email =user.Email,
             };
         }
 

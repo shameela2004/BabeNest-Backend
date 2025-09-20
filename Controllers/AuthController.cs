@@ -34,6 +34,7 @@
 
 
 using BabeNest_Backend.DTOs;
+using BabeNest_Backend.Helpers;
 using BabeNest_Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -53,31 +54,32 @@ namespace BabeNest_Backend.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
         {
             var user = await _authService.RegisterAsync(dto);
-            return Ok(new { user.Id, user.Username, user.Email, user.Role });
+            var userData = new { user.Id, user.Username, user.Email, user.Role };
+            return Ok(ApiResponse<Object>.SuccessResponse(userData,"Registered successfully"));
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto dto)
         {
             var result = await _authService.LoginAsync(dto.Email, dto.Password);
-            if (result == null) return Unauthorized("Invalid credentials");
-            return Ok(result);
+            if (result == null) return Unauthorized(ApiResponse<object>.FailResponse("Invalid credentials"));
+            return Ok(ApiResponse<AuthResponseDto>.SuccessResponse(result, "Login Successfull"));
         }
 
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] RefreshRequestDto dto)
         {
             var result = await _authService.RefreshTokenAsync(dto.RefreshToken);
-            if (result == null) return Unauthorized("Invalid refresh token");
-            return Ok(result);
+            if (result == null) return Unauthorized(ApiResponse<object>.FailResponse("Invalid refresh token"));
+            return Ok(ApiResponse<AuthResponseDto>.SuccessResponse(result,"Success"));
         }
 
         [HttpPost("logout")]
         public async Task<IActionResult> Logout([FromBody] RefreshRequestDto dto)
         {
             var success = await _authService.RevokeTokenAsync(dto.RefreshToken);
-            if (!success) return BadRequest("Token not found");
-            return Ok(new { Message = "Logged out successfully" });
+            if (!success) return BadRequest(ApiResponse<object>.FailResponse("Token not found"));
+            return Ok(ApiResponse<Object>.SuccessResponse( "Logged out successfully"));
         }
     }
 }

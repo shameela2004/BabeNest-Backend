@@ -1,4 +1,5 @@
 ﻿using BabeNest_Backend.DTOs;
+using BabeNest_Backend.Helpers;
 using BabeNest_Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +21,10 @@ namespace BabeNest_Backend.Controllers.Users
         public async Task<IActionResult> GetCart()
         {
             var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
-            return Ok(await _service.GetCartAsync(userId));
+            var carts = await _service.GetCartAsync(userId);
+            if(carts == null || !carts.Any())
+                return NotFound(ApiResponse<string>.FailResponse("Your cart is empty", 404));
+            return Ok(ApiResponse<IEnumerable<CartDto>>.SuccessResponse(carts,"Cart items fetched successfully"));
         }
 
         [HttpPost]
@@ -28,7 +32,7 @@ namespace BabeNest_Backend.Controllers.Users
         {
             var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var result = await _service.AddToCartAsync(userId, dto);
-            return Ok(result);
+            return Ok(ApiResponse<CartDto>.SuccessResponse(result,"Product added to cart successfully"));
         }
 
         [HttpPut("{cartId}")]
@@ -36,7 +40,7 @@ namespace BabeNest_Backend.Controllers.Users
         {
             var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var updated = await _service.UpdateCartItemAsync(userId, cartId, dto.Quantity);
-            return updated != null ? Ok(updated) : NotFound();
+            return updated != null ? Ok(ApiResponse<CartDto>.SuccessResponse(updated,"Increased quantity")) : NotFound(ApiResponse<object>.FailResponse("Cart item not found or does not belong to the user."));
         }
 
         [HttpDelete("{cartId}")]
@@ -44,7 +48,7 @@ namespace BabeNest_Backend.Controllers.Users
         {
             var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var removed = await _service.RemoveFromCartAsync(userId, cartId);
-            return removed ? Ok(new { message = "Removed" }) : NotFound();
+            return removed ? Ok(ApiResponse<object>.SuccessResponse("Successfully removed from cart.")) : NotFound(ApiResponse<object>.FailResponse("Not found"));
         }
 
         [HttpDelete]
@@ -52,7 +56,7 @@ namespace BabeNest_Backend.Controllers.Users
         {
             var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var cleared = await _service.ClearCartAsync(userId);
-            return cleared ? Ok(new { message = "Cart cleared" }) : NotFound();
+            return cleared ? Ok(ApiResponse<object>.SuccessResponse("Cart Cleared .")) : NotFound(ApiResponse<object>.FailResponse("Your Cart is already empty."));
         }
 
     }

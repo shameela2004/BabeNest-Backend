@@ -18,9 +18,27 @@ namespace BabeNest_Backend.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<OrderStatus> OrderStatuses { get; set; }
+        public DbSet<PaymentStatus> PaymentStatuses { get; set; }
+        public DbSet<PaymentMethod> PaymentMethods { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+
+
+            // Explicit precision for money-related fields
+            modelBuilder.Entity<Order>()
+                .Property(o => o.TotalAmount)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<OrderItem>()
+                .Property(oi => oi.Price)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Product>()
+                .Property(p => p.Price)
+                .HasColumnType("decimal(18,2)");
 
 
             modelBuilder.Entity<Category>().HasData(
@@ -87,6 +105,26 @@ namespace BabeNest_Backend.Data
                 Blocked = false,
                 CreatedAt = new DateTime(2025, 9, 8, 12, 0, 0)
             });
+
+            modelBuilder.Entity<OrderStatus>().HasData(
+    new OrderStatus { Id = 1, Name = "Pending" },
+    new OrderStatus { Id = 2, Name = "Shipped" },
+    new OrderStatus { Id = 3, Name = "Delivered" },
+    new OrderStatus { Id = 4, Name = "Cancelled" }
+);
+
+            modelBuilder.Entity<PaymentStatus>().HasData(
+                new PaymentStatus { Id = 1, Name = "Pending" },
+                new PaymentStatus { Id = 2, Name = "Paid" },
+                new PaymentStatus { Id = 3, Name = "Failed" }
+            );
+            modelBuilder.Entity<PaymentMethod>().HasData(
+    new PaymentMethod { Id = 1, Name = "COD" },
+    new PaymentMethod { Id = 2, Name = "Online" }
+);
+
+
+
 
             // for unique email 
             modelBuilder.Entity<User>()

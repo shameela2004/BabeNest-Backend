@@ -13,7 +13,7 @@ namespace BabeNest_Backend.Repositories
         {
             _context = context;
         }
-        public async Task<IEnumerable<Product>> GetAllAsync(ProductFilter filters)
+        public async Task<(IEnumerable<Product>,int)> GetAllAsync(ProductFilter filters)
         {
             var query = _context.Products
       .Include(p => p.Category)   //include category for filtering
@@ -27,7 +27,7 @@ namespace BabeNest_Backend.Repositories
                     p.Description.Contains(filters.SearchTerm));
             }
 
-            if (filters.CategoryId.HasValue)   // 🔹 now use CategoryId
+            if (filters.CategoryId.HasValue)  
             {
                 query = query.Where(p => p.CategoryId == filters.CategoryId.Value);
             }
@@ -41,8 +41,15 @@ namespace BabeNest_Backend.Repositories
             if (filters.Rating.HasValue)
                 query = query.Where(p => p.Rating >= filters.Rating.Value);
 
+            // Total count before pagination
+            var totalCount = await query.CountAsync();
 
-            return await query.ToListAsync();
+            // Pagination
+            var users = await query
+                .Skip((filters.Page - 1) * filters.PageSize)
+                .Take(filters.PageSize)
+                .ToListAsync();
+            return (users,totalCount);
         }
 
         public async Task<Product?> GetByIdAsync(int id)

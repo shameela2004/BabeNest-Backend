@@ -1,4 +1,5 @@
 ﻿using BabeNest_Backend.DTOs;
+using BabeNest_Backend.Helpers;
 using BabeNest_Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -28,13 +29,13 @@ namespace BabeNest_Backend.Controllers.Users
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
                 var user = await _userService.GetByIdAsync(userId);
-                if (user == null) return NotFound();
+                if (user == null) return NotFound(ApiResponse<object>.FailResponse("Login first"));
 
-                return Ok(user);
+                return Ok(ApiResponse<UserProfileDto>.SuccessResponse(user,"User profile fetched succcessfully."));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal error", detail = ex.Message });
+                return StatusCode(500, ApiResponse<object>.FailResponse("An unexpected error occured. Please try again later..!"));
             }
         }
 
@@ -46,9 +47,9 @@ namespace BabeNest_Backend.Controllers.Users
 
 
             var updatedUser = await _userService.UpdateAsync(userId, dto);
-            if (updatedUser == null) return NotFound();
+            if (updatedUser == null) return NotFound(ApiResponse<object>.FailResponse("Login first. User is not found"));
 
-            return Ok(updatedUser);
+            return Ok(ApiResponse<UserProfileDto>.SuccessResponse(updatedUser,"Profile updated Successfully."));
         }
     }
     }

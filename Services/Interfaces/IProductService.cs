@@ -5,10 +5,10 @@ namespace BabeNest_Backend.Services.Interfaces
 {
     public interface IProductService
     {
-        Task<IEnumerable<Product>> GetAllAsync(ProductFilter filters);
+        Task<(IEnumerable<Product>,int)> GetAllAsync(ProductFilter filters);
         Task<Product?> GetByIdAsync(int id);
-        Task<Product> CreateAsync(Product product);
-        Task<Product?> UpdateAsync(int id, Product updatedProduct);
+        Task<Product> CreateAsync(Product product, IFormFile? imageFile);
+        Task<Product?> UpdateAsync(int id, Product updatedProduct, IFormFile? imageFile);
         Task<bool> DeleteAsync(int id);
     }
 }

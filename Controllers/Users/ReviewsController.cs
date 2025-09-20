@@ -1,4 +1,5 @@
 ﻿using BabeNest_Backend.DTOs;
+using BabeNest_Backend.Helpers;
 using BabeNest_Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -24,7 +25,9 @@ namespace BabeNest_Backend.Controllers.Users
         public async Task<IActionResult> GetProductReviews(int productId)
         {
             var reviews = await _service.GetReviewsByProductIdAsync(productId);
-            return Ok(reviews);
+            if (reviews == null || !reviews.Any())
+                return NotFound(ApiResponse<string>.FailResponse("No reviews found for this product", 404));
+            return Ok(ApiResponse<IEnumerable<ReviewDto>>.SuccessResponse(reviews,"Reviews fetched successfully"));
         }
 
         // POST: api/reviews
@@ -38,9 +41,9 @@ namespace BabeNest_Backend.Controllers.Users
             var result = await _service.AddReviewAsync(userId, userName, dto.ProductId, dto.Rating, dto.ReviewText);
 
             if (result == null)
-                return BadRequest(new { message = "You can only review delivered products, and only once." });
+                return BadRequest(ApiResponse<object>.FailResponse("You can only review delivered products, and only once."));
 
-            return Ok(result);
+            return Ok(ApiResponse<ReviewDto>.SuccessResponse(result,"Review added successfully."));
         }
 
         // DELETE: api/reviews/{id}
@@ -52,9 +55,9 @@ namespace BabeNest_Backend.Controllers.Users
 
             var success = await _service.DeleteReviewAsync(userId, id);
             if (!success)
-                return BadRequest(new { message = "Review not found or not authorized." });
+                return BadRequest(ApiResponse<object>.FailResponse("Review not found or not authorized."));
 
-            return Ok(new { message = "Review deleted successfully." });
+            return Ok(ApiResponse<object>.SuccessResponse("Review deleted successfully"));
         }
     }
 }

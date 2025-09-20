@@ -1,12 +1,13 @@
 
 using BabeNest_Backend.Data;
+using BabeNest_Backend.Helpers;
 using BabeNest_Backend.Mappings;
 using BabeNest_Backend.Middlewares;
 using BabeNest_Backend.Repositories;
 using BabeNest_Backend.Repositories.Interfaces;
 using BabeNest_Backend.Services;
 using BabeNest_Backend.Services.Interfaces;
-
+using BabeNest_Backend.Services.PaymentService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -44,16 +45,26 @@ namespace BabeNest_Backend
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IAddressService, AddressService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
+            builder.Services.AddScoped<RazorpayService>();
 
 
 
-        
+
+
 
 
 
 
             builder.Services.AddAutoMapper(typeof(Mappingprofile));
 
+            //cloudinary registration
+            builder.Services.Configure<CloudinarySettings>(
+    builder.Configuration.GetSection("CloudinarySettings"));
+
+            builder.Services.AddScoped<CloudinaryHelper>();
+            // Razor Pay registration
+            builder.Services.Configure<RazorpaySettings>(builder.Configuration.GetSection("RazorPaySettings"));
+           
 
 
 

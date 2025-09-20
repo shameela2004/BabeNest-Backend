@@ -9,6 +9,10 @@
         public int Stock { get; set; }
         public string Image { get; set; }
 
+        //public string ImageUrl { get; set; }
+        public string? ImagePublicId { get; set; } // For deleting/replacing
+
+
         public int CategoryId { get; set; }
         public Category Category { get; set; }
         public double Rating { get; set; }  // Average rating from reviews

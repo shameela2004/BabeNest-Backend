@@ -36,10 +36,10 @@ namespace BabeNest_Backend.Services
             return _mapper.Map<UserDto>(user);
         }
 
-        public async Task<UserDto?> GetByIdAsync(int id)
+        public async Task<UserProfileDto?> GetByIdAsync(int id)
         {
             var user = await _userRepository.GetByIdAsync(id);
-            return user == null ? null : _mapper.Map<UserDto>(user);
+            return user == null ? null : _mapper.Map<UserProfileDto>(user);
         }
 
         public async Task<IEnumerable<UserDto>> GetAllAsync()
@@ -48,16 +48,47 @@ namespace BabeNest_Backend.Services
             return _mapper.Map<IEnumerable<UserDto>>(users);
         }
 
-        public async Task<UserDto?> UpdateAsync(int id, UpdateUserDto dto)
+        public async Task<(IEnumerable<UserDto>, int)> GetUsersAsync(UserFilterDto query)
         {
+            var (users, totalCount) = await _userRepository.GetFilteredUsersAsync(query);
+            var usersDto = _mapper.Map<IEnumerable<UserDto>>(users);
+            return (usersDto, totalCount);
+        }
+
+
+        public async Task<UserProfileDto?> UpdateAsync(int id, UpdateUserDto dto)
+        {
+            //var user = await _userRepository.GetByIdAsync(id);
+            //if (user == null) return null;
+
+            //_mapper.Map(dto, user); // updates fields directly
+
+            //await _userRepository.UpdateAsync(user);
+
+            //return _mapper.Map<UserProfileDto>(user);
             var user = await _userRepository.GetByIdAsync(id);
             if (user == null) return null;
 
-            _mapper.Map(dto, user); // updates fields directly
+            // Update profile fields
+            user.Username = dto.Username ?? user.Username;
+
+            // Handle password update (only if provided)
+            if (!string.IsNullOrEmpty(dto.OldPassword) && !string.IsNullOrEmpty(dto.NewPassword))
+            {
+                // Verify old password
+                if (!BCrypt.Net.BCrypt.Verify(dto.OldPassword, user.PasswordHash))
+                {
+                    throw new UnauthorizedAccessException("Old password is incorrect.");
+                }
+
+                // Hash new password
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            }
 
             await _userRepository.UpdateAsync(user);
+            return _mapper.Map<UserProfileDto>(user);
 
-            return _mapper.Map<UserDto>(user);
+
         }
 
 

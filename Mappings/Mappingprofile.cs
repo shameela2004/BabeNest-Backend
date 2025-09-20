@@ -25,11 +25,30 @@ namespace BabeNest_Backend.Mappings
             CreateMap<RegisterUserDto, User>()
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()); // hash separately
             CreateMap<UpdateUserDto, User>();
+            CreateMap<User, UserProfileDto>();
 
             // Order
             CreateMap<Order, OrderDto>();
             CreateMap<CreateOrderDto, Order>();
             CreateMap<CreateOrderItemDto, OrderItem>();
+
+            // Map Order → OrderDto
+            CreateMap<Order, OrderDto>()
+                .ForMember(dest => dest.OrderStatus,
+                    opt => opt.MapFrom(src => src.OrderStatus.Name))  //  map OrderStatus.Name
+                .ForMember(dest => dest.PaymentStatus,
+                    opt => opt.MapFrom(src => src.PaymentStatus.Name)) // map PaymentStatus.Name
+                .ForMember(dest => dest.PaymentMethod,
+                    opt => opt.MapFrom(src => src.PaymentMethod.Name)) // map PaymentMethod.Name
+                .ForMember(dest => dest.Items,
+                    opt => opt.MapFrom(src => src.Items));
+            // Map CreateOrderDto → Order
+            CreateMap<CreateOrderDto, Order>()
+                .ForMember(dest => dest.OrderStatusId,
+                    opt => opt.MapFrom(src => 1)) // Default = Pending
+                .ForMember(dest => dest.PaymentStatusId,
+                    opt => opt.MapFrom(src => 1)); // Default = Pending
+
 
             // OrderItem 
             CreateMap<OrderItem, OrderItemDto>()

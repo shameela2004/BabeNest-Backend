@@ -1,4 +1,6 @@
-﻿using BabeNest_Backend.Services.Interfaces;
+﻿using BabeNest_Backend.DTOs;
+using BabeNest_Backend.Helpers;
+using BabeNest_Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +25,9 @@ namespace BabeNest_Backend.Controllers.Users
         {
             var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var wishlist = await _wishlistService.GetUserWishlistAsync(userId);
-            return Ok(wishlist);
+            if(wishlist == null || !wishlist.Any())
+                return NotFound(ApiResponse<string>.FailResponse("Wishlist is empty", 404));
+            return Ok(ApiResponse<IEnumerable<WishlistDto>>.SuccessResponse(wishlist,"Wishlist retrieved successfully"));
         }
 
         [HttpPost("{productId}")]
@@ -31,7 +35,7 @@ namespace BabeNest_Backend.Controllers.Users
         {
             var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var item = await _wishlistService.AddToWishlistAsync(userId, productId);
-            return Ok(item);
+            return Ok(ApiResponse<WishlistDto>.SuccessResponse(item,"Item added to wishlist"));
         }
 
         [HttpDelete("{wishlistId}")]
@@ -39,7 +43,7 @@ namespace BabeNest_Backend.Controllers.Users
         {
             var userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var success = await _wishlistService.RemoveFromWishlistAsync(userId, wishlistId);
-            return success ? NoContent() : NotFound();
+            return success ? Ok(ApiResponse<object>.SuccessResponse("Item removed from wishlist")) : NotFound(ApiResponse<object>.FailResponse("Item not found in wishlist"));
         }
 
         [HttpPost("add-to-cart/{wishlistId}")]
@@ -50,9 +54,9 @@ namespace BabeNest_Backend.Controllers.Users
             var result = await _wishlistService.AddToCartFromWishlistAsync(userId, wishlistId);
 
             if (result == null)
-                return NotFound(new { message = "Wishlist item not found" });
+                return NotFound(ApiResponse<object>.FailResponse("Wishlist item not found."));
 
-            return Ok(result);
+            return Ok(ApiResponse<CartDto>.SuccessResponse(result,"Added to cart successfully"));
         }
     }
 }

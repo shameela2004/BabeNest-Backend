@@ -25,13 +25,20 @@ namespace BabeNest_Backend.Controllers.Users
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] ProductFilter filters)
         {
-            var products = await _productService.GetAllAsync(filters);
+            var (products,totalCount) = await _productService.GetAllAsync(filters);
             if (products == null || !products.Any())
             {
                 return NotFound(ApiResponse<object>.FailResponse("No products", statusCode: 404));
             }
             var productdtos = _mapper.Map<IEnumerable<ProductDto>>(products);
-            return Ok(ApiResponse<IEnumerable<ProductDto>>.SuccessResponse(productdtos, "Products retrieved successfully"));
+            var result = new
+            {
+                Items = productdtos,
+                TotalCount = totalCount,
+                Page = filters.Page,
+                PageSize = filters.PageSize
+            };
+            return Ok(ApiResponse<object>.SuccessResponse(result, "Products retrieved successfully"));
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)

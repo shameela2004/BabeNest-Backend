@@ -5,7 +5,7 @@ namespace BabeNest_Backend.Repositories.Interfaces
 {
     public interface IProductRepository
     {
-        Task<IEnumerable<Product>> GetAllAsync(ProductFilter filters);
+        Task<(IEnumerable<Product>, int)> GetAllAsync(ProductFilter filters);
         Task<Product?> GetByIdAsync(int id);
         Task AddAsync(Product product);
         Task UpdateAsync(Product product);

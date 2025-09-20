@@ -4,6 +4,7 @@ using BabeNest_Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BabeNest_Backend.Migrations
 {
     [DbContext(typeof(BabeNestDbContext))]
-    partial class BabeNestDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250919061100_newtablesfororders")]
+    partial class newtablesfororders
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -237,7 +240,7 @@ namespace BabeNest_Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OrderStatuses");
+                    b.ToTable("OrderStatus");
 
                     b.HasData(
                         new
@@ -276,7 +279,7 @@ namespace BabeNest_Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PaymentMethods");
+                    b.ToTable("PaymentMethod");
 
                     b.HasData(
                         new
@@ -305,7 +308,7 @@ namespace BabeNest_Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PaymentStatuses");
+                    b.ToTable("PaymentStatus");
 
                     b.HasData(
                         new
@@ -321,7 +324,7 @@ namespace BabeNest_Backend.Migrations
                         new
                         {
                             Id = 3,
-                            Name = "Failed"
+                            Name = "Pending"
                         });
                 });
 
