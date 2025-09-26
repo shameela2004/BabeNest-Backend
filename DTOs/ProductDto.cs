@@ -11,6 +11,8 @@
         public string Image { get; set; }
 
         public string CategoryName { get; set; }
+        public double Rating { get; set; } = 0; // Add this
+
     }
 
     // Create DTO

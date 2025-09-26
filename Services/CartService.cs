@@ -25,6 +25,8 @@ namespace BabeNest_Backend.Services
                 Id = c.Id,
                 ProductId = c.ProductId,
                 ProductName = c.Product.Name,
+                ProductImage = c.Product.Image,
+                ProductPrice = c.Product.Price,
                 Quantity = c.Quantity
             });
         }

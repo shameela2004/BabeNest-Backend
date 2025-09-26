@@ -1,4 +1,6 @@
-﻿using BabeNest_Backend.Entities;
+﻿using BabeNest_Backend.DTOs;
+using BabeNest_Backend.Entities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BabeNest_Backend.Repositories.Interfaces
 {
@@ -15,7 +17,12 @@ namespace BabeNest_Backend.Repositories.Interfaces
         //  Admin specific
         Task<IEnumerable<Order>> GetAllOrdersAsync();
         Task<Order?> GetOrderByIdForAdminAsync(int id);
-        Task<IEnumerable<Order>> FilterOrdersAsync(int? statusId, DateTime? startDate, DateTime? endDate, string? searchTerm, int page, int pageSize);
-
+        Task<PagedResult<Order>> FilterOrdersAsync(
+             int? statusId,
+             DateTime? startDate,
+             DateTime? endDate,
+             string? searchTerm,
+             int page,
+             int pageSize);
     }
 }

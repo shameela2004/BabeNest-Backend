@@ -11,8 +11,9 @@ namespace BabeNest_Backend.Services.Interfaces
         Task<OrderDto?> UpdateOrderStatusAsync(int orderId, int statusId);
         Task<IEnumerable<OrderDto>> GetAllOrdersAsync();
         Task<OrderDto?> GetOrderByIdAsync(int id);
-        Task<IEnumerable<OrderDto>> FilterOrdersAsync(int? statusId, DateTime? startDate, DateTime? endDate, string? serachTerm , int page,int pageSize);
-
+        Task<PagedResult<OrderDto>> FilterOrdersAsync(
+            int? statusId, DateTime? startDate, DateTime? endDate,
+            string? searchTerm, int page, int pageSize);
         Task<OrderDto?> VerifyPaymentAsync(VerifyPaymentDto dto);
     }
 }

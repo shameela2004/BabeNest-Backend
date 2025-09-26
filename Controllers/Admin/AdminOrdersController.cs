@@ -39,25 +39,43 @@ namespace BabeNest_Backend.Controllers.Admin
         }
 
         [HttpPut("{id}/status")]
-        public async Task<IActionResult> UpdateStatus(int id, [FromBody] int statusId)
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateOrderDto dto)
         {
             var order = await _orderService.GetOrderByIdAsync(id);
             if(order.OrderStatusId == 4) //cancelled
                 return BadRequest(ApiResponse<Object>.FailResponse("Cannot update status of a cancelled order"));
-
-            var success = await _orderService.UpdateOrderStatusAsync(id, statusId);
+            
+            var success = await _orderService.UpdateOrderStatusAsync(id, dto.OrderStatusId);
             if (success == null) 
                 return NotFound(ApiResponse<Object>.FailResponse("Failed to update the order Status"));
-            return Ok(ApiResponse<object>.SuccessResponse($"Order status updated to {statusId}"));
+            return Ok(ApiResponse<object>.SuccessResponse($"Order status updated to {dto.OrderStatusId}"));
         }
 
         //filtering and sorting
+        //[HttpGet("filter")]
+        //public async Task<IActionResult> FilterOrders([FromQuery] int? statusId, [FromQuery] DateTime? startDate,
+        //                                      [FromQuery] DateTime? endDate, [FromQuery] string? searchTerm, [FromQuery] int page=1, [FromQuery] int pageSize=10)
+        //{
+        //    var orders = await _orderService.FilterOrdersAsync(statusId, startDate, endDate, searchTerm,page,pageSize);
+        //    return Ok(ApiResponse<IEnumerable<OrderDto>>.SuccessResponse(orders, "Orders fetched successfully", 200));
+        //}
+
         [HttpGet("filter")]
-        public async Task<IActionResult> FilterOrders([FromQuery] int? statusId, [FromQuery] DateTime? startDate,
-                                              [FromQuery] DateTime? endDate, [FromQuery] string? searchTerm, [FromQuery] int page=1, [FromQuery] int pageSize=10)
+        public async Task<IActionResult> FilterOrders(
+    [FromQuery] int? statusId,
+    [FromQuery] DateTime? startDate,
+    [FromQuery] DateTime? endDate,
+    [FromQuery] string? searchTerm,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 10)
         {
-            var orders = await _orderService.FilterOrdersAsync(statusId, startDate, endDate, searchTerm,page,pageSize);
-            return Ok(ApiResponse<IEnumerable<OrderDto>>.SuccessResponse(orders, "Orders fetched successfully", 200));
+            var result = await _orderService.FilterOrdersAsync(statusId, startDate, endDate, searchTerm, page, pageSize);
+
+            return Ok(ApiResponse<PagedResult<OrderDto>>.SuccessResponse(
+                result,
+                "Orders fetched successfully",
+                200
+            ));
         }
 
 

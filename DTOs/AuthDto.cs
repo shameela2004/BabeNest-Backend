@@ -17,8 +17,8 @@
     {
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
-        public string Username { get; set; }
-        public string Email { get; set; }
+        public DateTime RefreshTokenExpiry { get; set; } // Expiry time of refresh token
+        public UserDto User { get; set; }             // Logged-in user info
     }
 
     public class RefreshRequestDto

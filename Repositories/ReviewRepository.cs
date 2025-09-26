@@ -13,9 +13,11 @@ namespace BabeNest_Backend.Repositories
         public async Task<IEnumerable<Review>> GetReviewsByProductIdAsync(int productId)
         {
             return await _context.Reviews
-                .Where(r => r.ProductId == productId)
-                .OrderByDescending(r => r.Date)
-                .ToListAsync();
+    .Include(r => r.Product)
+    .Where(r => r.ProductId == productId)
+    .OrderByDescending(r => r.Date)
+    .ToListAsync();
+
         }
 
         public async Task<Review?> GetUserReviewForProductAsync(int userId, int productId)

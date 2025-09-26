@@ -1,4 +1,4 @@
-
+﻿
 using BabeNest_Backend.Data;
 using BabeNest_Backend.Helpers;
 using BabeNest_Backend.Mappings;
@@ -30,7 +30,6 @@ namespace BabeNest_Backend
             builder.Services.AddScoped<ICartRepository, CartRepository>();
             builder.Services.AddScoped<IwishlistRepository, WishlistRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-            builder.Services.AddScoped<IAddressRepository, AddressRepository>();
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 
@@ -43,7 +42,6 @@ namespace BabeNest_Backend
             builder.Services.AddScoped<ICartService,CartService>();
             builder.Services.AddScoped<IWishlistService,WishlistService>();
             builder.Services.AddScoped<IOrderService, OrderService>();
-            builder.Services.AddScoped<IAddressService, AddressService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
             builder.Services.AddScoped<RazorpayService>();
 
@@ -137,7 +135,26 @@ namespace BabeNest_Backend
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("FrontendPolicy", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173", "http://localhost:5174")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+            });
+
+
+
             var app = builder.Build();
+
+            app.UseHttpsRedirection();
+            app.UseCors("FrontendPolicy"); // ✅ Apply CORS
+
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -148,7 +165,7 @@ namespace BabeNest_Backend
             app.UseMiddleware<ExceptionMiddleware>();
             app.UseMiddleware<BabeNest_Backend.Middlewares.TokenRefreshMiddleware>();
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseAuthorization();

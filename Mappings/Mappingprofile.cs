@@ -10,7 +10,9 @@ namespace BabeNest_Backend.Mappings
         {
             // Product
             CreateMap<Product, ProductDto>()
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name));
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+                    .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating));
+            
             CreateMap<CreateProductDto, Product>();
             CreateMap<UpdateProductDto, Product>();
 
@@ -53,8 +55,18 @@ namespace BabeNest_Backend.Mappings
             // OrderItem 
             CreateMap<OrderItem, OrderItemDto>()
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name));
+
             CreateMap<CreateOrderItemDto, OrderItem>();
             CreateMap<UpdateOrderItemDto, OrderItem>();
+
+            CreateMap<OrderItem, OrderItemDto>()
+    .ForMember(dest => dest.ProductImage, opt => opt.MapFrom(src => src.Product.Image))
+        .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Product.Category.Name));
+
+
+            CreateMap<CreateOrderItemDto, OrderItem>()
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.ProductPrice));
+
 
             // Cart
             CreateMap<Cart, CartDto>()
@@ -64,7 +76,10 @@ namespace BabeNest_Backend.Mappings
 
             // Wishlist
             CreateMap<Wishlist, WishlistDto>()
-                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name));
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
+                .ForMember(dest => dest.ProductPrice, opt => opt.MapFrom(src => src.Product.Price))
+    .ForMember(dest => dest.ProductImage, opt => opt.MapFrom(src => src.Product.Image))
+    .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Product.Category.Name));
             CreateMap<CreateWishlistDto, Wishlist>();
 
             // Review
@@ -73,7 +88,11 @@ namespace BabeNest_Backend.Mappings
             //CreateMap<CreateReviewDto, Review>();
             // Entity -> DTO
             CreateMap<Review, ReviewDto>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName));
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
+                  .ForMember(dest => dest.ReviewText, opt => opt.MapFrom(src => src.ReviewText))
+    .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating))
+             .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
+    .ForMember(dest => dest.ProductImage, opt => opt.MapFrom(src => src.Product.Image));
             // src.UserName is already in entity, no need to map from User.Username
 
             // DTO -> Entity (Create)
@@ -82,10 +101,7 @@ namespace BabeNest_Backend.Mappings
                 .ForMember(dest => dest.UserName, opt => opt.Ignore()) // will be set in service from JWT
                 .ForMember(dest => dest.Date, opt => opt.MapFrom(_ => DateTime.Now));
 
-            // Address
-            CreateMap<Address, AddressDto>().ReverseMap();
-            CreateMap<CreateAddressDto, Address>();
-            CreateMap<UpdateAddressDto, Address>();
+           
 
         }
     }

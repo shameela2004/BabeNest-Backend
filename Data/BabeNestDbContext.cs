@@ -16,7 +16,6 @@ namespace BabeNest_Backend.Data
         public DbSet <OrderItem> OrderItems { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<Address> Addresses { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<OrderStatus> OrderStatuses { get; set; }
         public DbSet<PaymentStatus> PaymentStatuses { get; set; }
@@ -161,11 +160,7 @@ namespace BabeNest_Backend.Data
                          .WithMany(p => p.Reviews)
                          .HasForeignKey(r => r.ProductId);
 
-              modelBuilder.Entity<Address>()
-                .HasOne(a => a.User)
-                .WithMany(u => u.Addresses)
-                .HasForeignKey(a => a.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+             
 
             // User -RefreshTokens (One-to-Many)
             modelBuilder.Entity<RefreshToken>()

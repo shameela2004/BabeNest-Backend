@@ -61,7 +61,7 @@ namespace BabeNest_Backend.Controllers.Users
                         created,
                         RazorpayOrder = new
                         {
-                            created.Id,              // your DB Order Id
+                            created.RazorpayOrderId,              
                             created.TotalAmount,     // total to be paid
                             created.PaymentStatus,   // "Pending"
                         }
@@ -116,6 +116,9 @@ namespace BabeNest_Backend.Controllers.Users
 
             //var result = await _orderService.UpdateOrderStatusAsync(id, "Cancelled");
             //return result ? Ok(new { message = "Order cancelled successfully." }) : BadRequest(new { message = "Unable to cancel order." });
+            // Block cancellation if online payment is already paid
+            if (order.PaymentMethod != "COD" && order.PaymentStatus == "Paid")
+                return BadRequest("Cannot cancel an order that has already been paid online.");
             if (order.OrderStatus == "Pending")
             {
                 var updatedOrder = await _orderService.UpdateOrderStatusAsync(id, 4);

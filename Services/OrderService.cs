@@ -69,7 +69,9 @@ namespace BabeNest_Backend.Services
                 {
                     ProductId = ci.ProductId,
                     Quantity = ci.Quantity,
-                    Price = product.Price
+                    Price = product.Price,
+                    Product = product // ✅ include the product so AutoMapper can map image
+
                 };
 
                 total += product.Price * ci.Quantity;
@@ -136,11 +138,27 @@ namespace BabeNest_Backend.Services
             var order = await _orderRepo.GetOrderByIdForAdminAsync(id);
             return _mapper.Map<OrderDto?>(order);
         }
-        public async Task<IEnumerable<OrderDto>> FilterOrdersAsync(int? statusId, DateTime? startDate, DateTime? endDate, string? serachTerm,int page,int pageSize)
+        //public async Task<IEnumerable<OrderDto>> FilterOrdersAsync(int? statusId, DateTime? startDate, DateTime? endDate, string? serachTerm,int page,int pageSize)
+        //{
+        //    var orders = await _orderRepo.FilterOrdersAsync(statusId, startDate, endDate, serachTerm,page,pageSize);
+        //    return _mapper.Map<IEnumerable<OrderDto>>(orders);
+        //}
+
+        public async Task<PagedResult<OrderDto>> FilterOrdersAsync(
+    int? statusId, DateTime? startDate, DateTime? endDate,
+    string? searchTerm, int page, int pageSize)
         {
-            var orders = await _orderRepo.FilterOrdersAsync(statusId, startDate, endDate, serachTerm,page,pageSize);
-            return _mapper.Map<IEnumerable<OrderDto>>(orders);
+            var result = await _orderRepo.FilterOrdersAsync(statusId, startDate, endDate, searchTerm, page, pageSize);
+
+            return new PagedResult<OrderDto>
+            {
+                Items = _mapper.Map<IEnumerable<OrderDto>>(result.Items),
+                TotalCount = result.TotalCount,
+                Page = result.Page,
+                PageSize = result.PageSize
+            };
         }
+
 
 
         //public async Task<OrderDto?> VerifyPaymentAsync(int orderId, string razorpayOrderId, string paymentId, string signature)

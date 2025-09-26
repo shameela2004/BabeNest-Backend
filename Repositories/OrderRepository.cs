@@ -1,4 +1,5 @@
 ﻿using BabeNest_Backend.Data;
+using BabeNest_Backend.DTOs;
 using BabeNest_Backend.Entities;
 using BabeNest_Backend.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,7 @@ namespace BabeNest_Backend.Repositories
             return await _context.Orders
                 .Include(o => o.Items)
                 .ThenInclude(i => i.Product)
+                .ThenInclude(p => p.Category)
                  .Include(o => o.OrderStatus)
                 .Include(o => o.PaymentMethod)
                 .Include(o => o.PaymentStatus)
@@ -38,6 +40,7 @@ namespace BabeNest_Backend.Repositories
             return await _context.Orders
                 .Include(o => o.Items)
                 .ThenInclude(i => i.Product)
+                .ThenInclude(p => p.Category)
                 .Include(o=>o.OrderStatus)
                 .Include(o=>o.PaymentMethod)
                 .Include(o=>o.PaymentStatus)
@@ -117,6 +120,7 @@ namespace BabeNest_Backend.Repositories
             return await _context.Orders
                 .Include(o => o.Items)
                 .ThenInclude(i => i.Product)
+                .ThenInclude(p => p.Category)
                 .Include(o => o.User) // so we can map UserName
                 .Include(o=>o.PaymentStatus)
                 .Include(o => o.OrderStatus)
@@ -130,22 +134,70 @@ namespace BabeNest_Backend.Repositories
             return await _context.Orders
                 .Include(o => o.Items)
                 .ThenInclude(i => i.Product)
+                .ThenInclude(p => p.Category)
                 .Include(o => o.User)
                 .Include(o => o.PaymentMethod)
                 .Include(o => o.PaymentStatus)
                 .Include(o => o.OrderStatus)
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
-        public async Task<IEnumerable<Order>> FilterOrdersAsync(int? status, DateTime? startDate, DateTime? endDate, string? searchTerm, int page,int pageSize)
+        //public async Task<IEnumerable<Order>> FilterOrdersAsync(int? status, DateTime? startDate, DateTime? endDate, string? searchTerm, int page,int pageSize)
+        //{
+        //    var query = _context.Orders
+        //        .Include(o => o.Items)
+        //        .ThenInclude(i => i.Product)
+        //        .ThenInclude(p => p.Category)
+        //        .Include(o => o.User)
+        //         .Include(o => o.OrderStatus)    
+        //.Include(o => o.PaymentStatus)    
+        //.Include(o => o.PaymentMethod)
+        //        .AsQueryable();
+
+        //    if (status.HasValue)
+        //        query = query.Where(o => o.OrderStatusId == status);
+
+        //    if (startDate.HasValue)
+        //        query = query.Where(o => o.OrderDate >= startDate.Value);
+
+        //    if (endDate.HasValue)
+        //        query = query.Where(o => o.OrderDate <= endDate.Value);
+
+        //    if (!string.IsNullOrEmpty(searchTerm))
+        //        query = query.Where(o => o.CustomerEmail.Contains(searchTerm) || o.CustomerName.Contains(searchTerm));
+
+        //    // Total count before pagination
+        //    var totalCount = await query.CountAsync();
+
+        //    // Pagination
+        //    var orders = await query
+        //         .OrderByDescending(o => o.OrderDate)
+        //        .Skip((page - 1) * pageSize)
+        //        .Take(pageSize)
+        //        .ToListAsync();
+
+        //    return  orders;
+        //}
+
+        public async Task<PagedResult<Order>> FilterOrdersAsync(
+     int? statusId,
+     DateTime? startDate,
+     DateTime? endDate,
+     string? searchTerm,
+     int page,
+     int pageSize)
         {
             var query = _context.Orders
                 .Include(o => o.Items)
                 .ThenInclude(i => i.Product)
+                .ThenInclude(p => p.Category)
                 .Include(o => o.User)
+                .Include(o => o.OrderStatus)
+                .Include(o => o.PaymentStatus)
+                .Include(o => o.PaymentMethod)
                 .AsQueryable();
 
-            if (status.HasValue)
-                query = query.Where(o => o.OrderStatusId == status);
+            if (statusId.HasValue)
+                query = query.Where(o => o.OrderStatusId == statusId);
 
             if (startDate.HasValue)
                 query = query.Where(o => o.OrderDate >= startDate.Value);
@@ -154,21 +206,28 @@ namespace BabeNest_Backend.Repositories
                 query = query.Where(o => o.OrderDate <= endDate.Value);
 
             if (!string.IsNullOrEmpty(searchTerm))
-                query = query.Where(o => o.CustomerEmail.Contains(searchTerm) || o.CustomerName.Contains(searchTerm));
+                query = query.Where(o =>
+                    o.CustomerEmail.Contains(searchTerm) ||
+                    o.CustomerName.Contains(searchTerm));
 
-            // Total count before pagination
             var totalCount = await query.CountAsync();
 
-            // Pagination
             var orders = await query
-                 .OrderByDescending(o => o.OrderDate)
+                .OrderByDescending(o => o.OrderDate)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            return  orders;
+            return new PagedResult<Order>
+            {
+                Items = orders,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
-
     }
+
 }
+
